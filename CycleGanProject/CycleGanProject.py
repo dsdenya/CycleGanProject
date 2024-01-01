@@ -26,17 +26,6 @@ if __name__== "__main__":
     monet_dataset = tf.data.TFRecordDataset(monet_file) #A Dataset comprising records from one or more TFRecord files.
     photo_dataset = tf.data.TFRecordDataset(photo_file)
 
-    #An Example is a standard proto storing data for training and inference. Also, this will get the 'features' of the tfrecord so that you can parse it
-    for raw_record in monet_dataset.take(10):
-      monet = tf.train.Example()
-      monet.ParseFromString(raw_record.numpy())
-
-      
-    for photo_raw_record in photo_dataset.take(10):
-      photo = tf.train.Example()
-      photo.ParseFromString(photo_raw_record.numpy())
-  
-
     #This is where the features will go so that we can parse the images.
     def decode_fn(record_bytes):
         features = {
@@ -44,24 +33,28 @@ if __name__== "__main__":
             'image_name': tf.io.FixedLenFeature([], tf.string),
             'target': tf.io.FixedLenFeature([], tf.string),
         }
-        return tf.io.parse_single_example(record_bytes, features)
+        parsed_features = tf.io.parse_single_example(record_bytes, features)
+        image = tf.image.decode_jpeg(parsed_features['image'])
+        image = tf.cast(image, tf.float32)
+        normalized_image = (image - tf.reduce_min(image)) / (tf.reduce_max(image) - tf.reduce_min(image))
+        return normalized_image
+    
+    batch_size = 32
     
     #Creates a map that attaches the features to values. Like a dictionary.
-    monet_dataset_map = monet_dataset.map(decode_fn)
-    photo_dataset_map = photo_dataset.map(decode_fn)
+    monet_dataset_map = monet_dataset.map(decode_fn).batch(batch_size)
+    photo_dataset_map = photo_dataset.map(decode_fn).batch(batch_size)
 
     type(monet_dataset_map)
     
-    #Make a normalization and tensor function and put it in a list and return it
-    def tensor_normalization(dataset_map):
-      images_normalized = []
-      for features in dataset_map:
-        tensor = tf.image.decode_jpeg(features['image'].numpy())
-        tensor = tf.cast(tensor, tf.float32) # Since the original type of image_tensor was uint8, we need to change it to tf.float32 so it can be compatible to perform arithemitc with 127.5
-        normalized = (tensor - np.amin(tensor))/ (np.amax(tensor) - np.amin(tensor)) #Normalization formula
-        images_normalized.append(normalized)
-      return tf.data.Dataset.from_tensor_slices(images_normalized)
-
-    monet_normalized = tensor_normalization(monet_dataset_map)
-    photo_normalized = tensor_normalization(photo_dataset_map)
-
+    def show_images(dataset, num_images=10):
+        plt.figure(figsize=(15, 15))  # Adjusted figure size for better visibility
+        for images in dataset.take(1):  # Take one batch
+            num_images = min(num_images, images.shape[0])  # Ensure we don't exceed the batch size
+            for i in range(num_images):  # Iterate over the first 'num_images' images in the batch
+                ax = plt.subplot(1, num_images, i + 1)
+                plt.imshow(images[i])
+                plt.axis("off")
+        plt.show()
+    
+    show_images(monet_dataset_map)
