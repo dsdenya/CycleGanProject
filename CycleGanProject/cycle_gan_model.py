@@ -10,7 +10,7 @@ class Generator(nn.Module):
         super().__init__()
     
         self.conv_layer = nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, kernel_size),
+                nn.Conv2d(input_channel, output_channel, kernel_size),
                 nn.ReLU(),
                 
                 nn.Conv2d(input_channel, output_channel, kernel_size),
@@ -21,4 +21,39 @@ class Generator(nn.Module):
                 nn.ReLU(),
                 nn.MaxPool2d(kernel_size)
     )
+        
+class ResNet(nn.Module):
+    def __init__(self, input_channels, output_channels, kernel_size):
+        super().__init__()
+        self.module = nn.Sequential(
+            # first convolutional block
+            nn.Conv2d(input_channels, output_channels, kernel_size),
+            nn.BatchNorm2d(output_channels),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size),
     
+            
+            nn.Conv2d(output_channels, output_channels, kernel_size),
+            nn.BatchNorm2d(output_channels),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size),
+            
+            nn.Conv2d(output_channels, output_channels, kernel_size),
+            nn.BatchNorm2d(output_channels),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size),
+            
+            nn.Conv2d(output_channels, output_channels, kernel_size),
+            nn.BatchNorm2d(output_channels),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size),
+            
+            nn.Conv2d(output_channels, output_channels, kernel_size),
+            nn.BatchNorm2d(output_channels),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size),
+            
+            #have to put the add operation here to complete the resnet skip convo blocks here later
+        )
+
+        
