@@ -3,7 +3,8 @@ import torch.nn as nn
 from CycleGanProject import load_and_preprocess_dataset
 
 #Two Generators
-#Composed of three parts: Encode, transformer, and decoder
+#Composed of three parts: Encode, resnet skip connects, and decoder
+#Note: nn.Sequential is used to sequentially execute layers, NOT for defining layers with specific parameters directly within it. So, I can't put something like: input = nn.Conv2d(input, output_channel, kernel_size)
 class Generator(nn.Module):
     def __init__(self, input_channel:int, output_channel:int, kernel_size:int):
         
@@ -53,7 +54,7 @@ class ResNet(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size),
             
-            #have to put the add operation here to complete the resnet skip convo blocks here later
+            #Create the add operation for later so that I can add the resnet skip connections later
         )
 
         

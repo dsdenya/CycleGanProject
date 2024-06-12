@@ -2,13 +2,11 @@
 
 import tensorflow as tf
 from glob import glob
-from tensorflow import keras
 import numpy as np
 from IPython.display import display, Image
 import tensorflow_io as tfio
 from tensorflow.io import FixedLenFeature, VarLenFeature
 import matplotlib.pyplot as plt
-from tqdm import tqdm
 import os
 
 def decode_fn(record_bytes):
@@ -51,6 +49,11 @@ if __name__== "__main__":
     #for element in monet_normalized:
     #    print(element)
 
+input_channels = 3
+kernel_size = 3
+output_channels = 64
+
+generator = Generator(input_channels, output_channels, kernel_size)
 
 
 
