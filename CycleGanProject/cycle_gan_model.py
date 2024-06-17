@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import CycleGanProject
 
 
 # Two Generators
@@ -128,6 +129,17 @@ class Discriminator(nn.Module):
       x = F.sigmoid(x)
 
       return x
+    
+def cyclecon_loss(recon_target, target):
+    m = nn.Sigmoid()
+    loss = nn.BCELoss()
+    output = loss(m(recon_target), target )
+    return output
+
+input_channel = 3
+output_channel = 64
+kernel_size = 3
+
 
 generatorA = Generator(input_channel, output_channel, kernel_size)
 generatorB = Generator(input_channel, output_channel, kernel_size)

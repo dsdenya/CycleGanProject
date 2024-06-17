@@ -52,9 +52,3 @@ if __name__ == "__main__":
 # Output: shape=(4, 256, 256, 3), dtype=float32 <-- 4 batches, 256 x 256 matrix, 3 channels (rgb)
 # for element in monet_normalized:
 #    print(element)
-
-input_channels = 3
-kernel_size = 3
-output_channels = 64
-
-generator = Generator(input_channels, output_channels, kernel_size)
